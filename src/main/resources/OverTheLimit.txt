@@ -1,0 +1,3 @@
+La cantidad de productos en el inventario supera el máximo.
+
+Considere atrasar o reducir el proximo lote del pedido.

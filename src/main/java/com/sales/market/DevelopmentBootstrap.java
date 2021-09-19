@@ -6,10 +6,7 @@ package com.sales.market;
 
 import com.sales.market.model.*;
 import com.sales.market.repository.BuyRepository;
-import com.sales.market.service.CategoryService;
-import com.sales.market.service.ItemInstanceService;
-import com.sales.market.service.ItemService;
-import com.sales.market.service.SubCategoryService;
+import com.sales.market.service.*;
 import io.micrometer.core.instrument.util.IOUtils;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -27,19 +24,28 @@ public class DevelopmentBootstrap implements ApplicationListener<ContextRefreshe
     private final SubCategoryService subCategoryService;
     private final ItemService itemService;
     private final ItemInstanceService itemInstanceService;
+    private final ItemInventoryService itemInventoryService;
+    private final ItemInventoryEntryService itemInventoryEntryService;
 
     SubCategory beverageSubCat = null;
-
+    Item itemExtra1 = null;
+    Item itemExtra2 = null;
+    Item itemExtra3 = null;
+    ItemInventory itemInventory1 = null;
+    ItemInventory itemInventory2 = null;
+    ItemInventory itemInventory3 = null;
     // injeccion evita hacer instancia   = new Clase();
     // bean pueden tener muchos campos y otros beans asociados
 
     public DevelopmentBootstrap(BuyRepository buyRepository, CategoryService categoryService,
-            SubCategoryService subCategoryService, ItemService itemService, ItemInstanceService itemInstanceService) {
+                                SubCategoryService subCategoryService, ItemService itemService, ItemInstanceService itemInstanceService, ItemInventoryService itemInventoryService, ItemInventoryEntryService itemInventoryEntryService) {
         this.buyRepository = buyRepository;
         this.categoryService = categoryService;
         this.subCategoryService = subCategoryService;
         this.itemService = itemService;
         this.itemInstanceService = itemInstanceService;
+        this.itemInventoryService = itemInventoryService;
+        this.itemInventoryEntryService = itemInventoryEntryService;
     }
 
     @Override
@@ -58,6 +64,9 @@ public class DevelopmentBootstrap implements ApplicationListener<ContextRefreshe
         persistCategoriesAndSubCategories();
         Item maltinItem = persistItems(beverageSubCat);
         persistItemInstances(maltinItem);
+        persistItems2(beverageSubCat);
+        persistItemInventories();
+        persistItemInventoryEntries();
     }
 
     private void persistItemInstances(Item maltinItem) {
@@ -85,11 +94,13 @@ public class DevelopmentBootstrap implements ApplicationListener<ContextRefreshe
         item.setCode("B-MALTIN");
         item.setName("MALTIN");
         item.setSubCategory(subCategory);
+        item.setUnitPrice(new BigDecimal(5));
         /*try {
             item.setImage(ImageUtils.inputStreamToByteArray(getResourceAsStream("/images/maltin.jpg")));
         } catch (IOException e) {
             e.printStackTrace();
         }*/
+        this.itemExtra1 = item;
         return itemService.save(item);
     }
 
@@ -134,5 +145,59 @@ public class DevelopmentBootstrap implements ApplicationListener<ContextRefreshe
         Buy buy = new Buy();
         buy.setValue(value);
         buyRepository.save(buy);
+    }
+
+    private void persistItems2(SubCategory subCategory){
+        Item item = new Item();
+        item.setCode("A-POWERADE");
+        item.setName("POWERADE");
+        item.setSubCategory(subCategory);
+        this.itemExtra2 = item;
+        itemService.save(item);
+
+        Item item2 = new Item();
+        item2.setCode("A-MONSTER");
+        item2.setName("MONSTER");
+        item2.setSubCategory(subCategory);
+        this.itemExtra3 = item2;
+        itemService.save(item2);
+    }
+
+    private void persistItemInventories(){
+        ItemInventory itemInventory = new ItemInventory();
+        itemInventory.setItem(itemExtra1);
+        itemInventory.setStockQuantity(new BigDecimal(100));
+        itemInventory.setUpperBoundThreshold(new BigDecimal(105));
+        itemInventory.setLowerBoundThreshold(new BigDecimal(95));
+        itemInventory.setTotalPrice(new BigDecimal(1000));
+        this.itemInventory1 = itemInventory;
+        itemInventoryService.save(itemInventory);
+
+        ItemInventory itemInventory2 = new ItemInventory();
+        itemInventory2.setItem(itemExtra2);
+        itemInventory2.setStockQuantity(new BigDecimal(100));
+        itemInventory2.setUpperBoundThreshold(new BigDecimal(110));
+        itemInventory2.setLowerBoundThreshold(new BigDecimal(90));
+        itemInventory2.setTotalPrice(new BigDecimal(2000));
+        this.itemInventory2 = itemInventory2;
+        itemInventoryService.save(itemInventory2);
+
+        ItemInventory itemInventory3 = new ItemInventory();
+        itemInventory3.setItem(itemExtra3);
+        itemInventory3.setStockQuantity(new BigDecimal(100));
+        itemInventory3.setUpperBoundThreshold(new BigDecimal(150));
+        itemInventory3.setLowerBoundThreshold(new BigDecimal(50));
+        itemInventory3.setTotalPrice(new BigDecimal(3000));
+        this.itemInventory3 = itemInventory3;
+        itemInventoryService.save(itemInventory3);
+    }
+
+    private void persistItemInventoryEntries(){
+        ItemInventoryEntry itemInventoryEntry = new ItemInventoryEntry();
+        itemInventoryEntry.setItemInventory(itemInventory1);
+        itemInventoryEntry.setMovementType(MovementType.SALE);
+        itemInventoryEntry.setQuantity(new BigDecimal(6));
+        itemInventoryEntry.setItemInstanceSkus("1-6");
+        itemInventoryEntryService.save(itemInventoryEntry);
     }
 }

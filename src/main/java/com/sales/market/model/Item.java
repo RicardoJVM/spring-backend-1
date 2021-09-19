@@ -6,12 +6,14 @@ package com.sales.market.model;
 
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
+import java.math.BigDecimal;
 
 @Entity
 public class Item extends ModelBase {
     private String name;
     private String code;
     private Byte[] image;
+    private BigDecimal unitPrice;
     @OneToOne(targetEntity = SubCategory.class)
     private SubCategory subCategory;
 
@@ -48,5 +50,13 @@ public class Item extends ModelBase {
 
     public void setSubCategory(SubCategory subCategory) {
         this.subCategory = subCategory;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
     }
 }

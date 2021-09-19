@@ -8,9 +8,11 @@ import com.sales.market.dto.ItemDto;
 import com.sales.market.model.Item;
 import com.sales.market.service.GenericService;
 import com.sales.market.service.ItemService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
+@CrossOrigin(origins="*",allowedHeaders = "*")
 @RestController
 @RequestMapping("/items")
 public class ItemController extends GenericController<Item, ItemDto> {
